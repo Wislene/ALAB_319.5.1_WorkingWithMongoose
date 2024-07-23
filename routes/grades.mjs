@@ -6,6 +6,40 @@ import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
+import {
+  createGrade,
+  getGrade,
+  addScore,
+  removeScore,
+  deleteGrade,
+  studentRedirect,
+  getLearnerGrades,
+  deleteLearnerGrades,
+  getClassGrades,
+  updateClassId,
+  deleteClass
+} from '../controllers/gradeController';
+
+
+router.post('/', createGrade);
+router.get('/:id', getGrade);
+router.patch('/:id/add', addScore);
+router.patch('/:id/remove', removeScore);
+router.delete('/:id', deleteGrade);
+router.get('/student/:id', studentRedirect);
+router.get('/learner/:id', getLearnerGrades);
+router.delete('/learner/:id', deleteLearnerGrades);
+router.get('/class/:id', getClassGrades);
+router.patch('/class/:id', updateClassId);
+router.delete('/class/:id', deleteClass);
+
+export default router;
+
+
+
+
+// Move these to its own controller folder/file
+
 // // Create a single grade entry
 // router.post("/", async (req, res) => {
 //   let collection = await db.collection("grades");
@@ -135,4 +169,4 @@ const router = express.Router();
 //   else res.send(result).status(200);
 // });
 
-export default router;
+

@@ -14,6 +14,9 @@ const gradeSchema = new mongoose.Schema({
 });
 
 const Grade = mongoose.model('Grade', gradeSchema);
+
+export default Grade;
+
 // You can build indexing into your schemas.
 // learnerSchema.index({ name: 1 });
 // learnerSchema.index({ year: 1 });
@@ -54,4 +57,4 @@ const Grade = mongoose.model('Grade', gradeSchema);
 // Compile the schema into a model and export it.
 // Models are used much like classes to create instances
 // of the objects that the schema describes.
-export default mongoose.model("Grade", gradeSchema);
+
