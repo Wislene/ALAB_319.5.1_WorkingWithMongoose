@@ -1,6 +1,8 @@
 import express from "express";
 import db from "../db/conn.mjs";
 import { ObjectId } from "mongodb";
+import Grade from '../models/Grade'; 
+
 
 const router = express.Router();
 
@@ -16,41 +18,41 @@ const router = express.Router();
  * - Exams: 50%
  * - Quizes: 30%
  * - Homework: 20%
- */
-
+ 
 // Get the weighted average of a specified learner's grades, per class
-router.get("/learner/:id/avg-class", async (req, res) => {
-  let collection = await db.collection("grades");
 
-  let result = await collection
-    .aggregate([
+router.get("/learner/:id/avg-class", async (req, res) => {
+  try {
+const learnerId = Number(req.params.id);
+
+const result = await Grade.aggregate([
+      { $match: { learner_id: learnerId } },
+      { $unwind: { path: "$scores" } },
       {
-        $match: { learner_id: Number(req.params.id) },
-      },
-      {
-        $unwind: { path: "$scores" },
-      },
-      {
-        $group: {
-          _id: "$class_id",
-          quiz: {
-            $push: {
-              $cond: {
-                if: { $eq: ["$scores.type", "quiz"] },
-                then: "$scores.score",
-                else: "$$REMOVE",
+        
+        
+$group: {
+    _id: "$class_id",
+      uiz: {
+    $push: {
+    $cond: {
+     if: { $eq: ["$scores.type", "quiz"] },
+    then: "$scores.score",
+    else: "$$REMOVE",
               },
             },
           },
+
           exam: {
-            $push: {
-              $cond: {
-                if: { $eq: ["$scores.type", "exam"] },
-                then: "$scores.score",
-                else: "$$REMOVE",
+    $push: {
+    $cond: {
+    if: { $eq: ["$scores.type", "exam"] },
+   then: "$scores.score",
+   else: "$$REMOVE",
               },
             },
           },
+
           homework: {
             $push: {
               $cond: {
@@ -63,6 +65,7 @@ router.get("/learner/:id/avg-class", async (req, res) => {
         },
       },
       {
+
         $project: {
           _id: 0,
           class_id: "$_id",
@@ -75,11 +78,15 @@ router.get("/learner/:id/avg-class", async (req, res) => {
           },
         },
       },
-    ])
-    .toArray();
+    ]);
 
-  if (!result) res.send("Not found").status(404);
-  else res.send(result).status(200);
+    if (!result.length) {
+      return res.status(404).send("Not found");
+    }
+    res.status(200).send(result);
+  } catch (error) {
+    res.status(500).send(error);
+  }
 });
 
 export default router;
